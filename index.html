@@ -4,17 +4,16 @@
 <title>Bliss Pulse – Are you in Bliss?</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Playfair+Display:ital,wght@1,500&family=Dancing+Script:wght@600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<style>
-:root{--b:#2a45b0;--n:#1c2f8a;--t:#5f9ea0;--m:#a8e6d6;--c:#e8efe6;--g:#3b5e3b;--r:#e8575a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+<style>:root{--b:#2a45b0;--n:#1c2f8a;--t:#5f9ea0;--m:#a8e6d6;--c:#e8efe6;--g:#3b5e3b;--r:#e8575a;color-scheme:dark}
 *{box-sizing:border-box;margin:0}
 [hidden]{display:none!important}
 html,body{height:100%;background:var(--b);color:#fff;font-family:Montserrat,system-ui,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;background:radial-gradient(circle at 85% 8%,#3d62a0 0 22%,transparent 22.2%),radial-gradient(circle at 0 100%,var(--t) 0 30%,transparent 30.2%),var(--b);overflow:hidden}
-section{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:transform .7s ease,opacity .7s}
-#cards,#result{opacity:0;transform:translateX(100%);pointer-events:none}
-#cards.in,#result.in{opacity:1;transform:none;pointer-events:auto}
-#intro.out{opacity:0;transform:translateX(-100%);pointer-events:none}
-/* intro */
+#app>section{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px;opacity:0;visibility:hidden;transform:translateX(100%);pointer-events:none;transition:transform .7s ease,opacity .7s,visibility 0s .7s}
+#app>section.past{transform:translateX(-100%)}
+#app>section.on{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:transform .7s ease,opacity .7s,visibility 0s}
+/* intro animation */
+#app>#intro{justify-content:center;overflow:hidden}
 .stage{position:relative;width:320px;height:250px;perspective:700px;transform-style:preserve-3d}
 .L{position:absolute;opacity:0;font:900 66px/1 Montserrat,sans-serif;color:var(--m);transform-style:preserve-3d;
 text-shadow:1px 1px 0 var(--t),2px 2px 0 var(--t),3px 3px 0 var(--t),4px 4px 0 #2d6a78,5px 5px 0 var(--n),6px 7px 8px rgba(0,0,0,.45)}
@@ -40,69 +39,92 @@ text-shadow:1px 1px 0 var(--t),2px 2px 0 var(--t),3px 3px 0 var(--t),4px 4px 0 #
 .cap{position:absolute;bottom:22%;width:100%;text-align:center;font:italic 500 22px 'Playfair Display',Georgia,serif;color:#fff;opacity:0;padding:0 24px}
 .go .c1{animation:fio 3.6s ease 9.5s both}.go .c2{animation:fio 4s ease 13.8s both}.go .c3{animation:fio 4s ease 18.2s both}.go .c4{animation:fio 4.6s ease 22.6s both}
 @keyframes fio{0%{opacity:0;transform:translateY(10px)}15%,80%{opacity:1;transform:none}100%{opacity:0}}
-.skip{position:absolute;bottom:18px;background:none;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:20px;padding:6px 16px;font:500 12px Montserrat}
 .sub{font:500 11px Montserrat;letter-spacing:.25em;text-transform:uppercase;color:var(--m);margin-top:10px;opacity:.9}
-/* meter */
-#meter{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:9;width:96px;transform-origin:100% 0;opacity:0;transition:opacity .6s}
+.ecg,.sub,.eyes{transition:opacity .5s}.fly .ecg,.fly .sub,.fly .eyes{opacity:0}
+/* mood meter (top right) + disclaimer (top left) */
+#meter{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:9;width:96px;transform-origin:100% 0;opacity:0;transition:opacity .6s,transform .5s cubic-bezier(.3,1.5,.5,1)}
 #meter.on{opacity:1}
-#meter svg{width:34px;height:20px;display:block;margin:0 auto}
-#meter path{fill:none;stroke:var(--m);stroke-width:3;stroke-linecap:round;transition:d .5s}
-#meter .eyes2{fill:#fff}
 .trk{position:relative;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--r),var(--c) 50%,var(--m));margin-top:4px}
 .mk{position:absolute;top:50%;left:50%;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--n);transform:translate(-50%,-50%);transition:left .6s cubic-bezier(.3,1.5,.5,1)}
-#meter small{display:block;font:700 8px Montserrat;letter-spacing:.15em;color:var(--m);margin-top:3px}
-#mw{font:600 18px/1.1 Montserrat;letter-spacing:.05em;color:#fff;transition:font-size .5s cubic-bezier(.3,1.5,.5,1),color .4s}
-.ecg,.sub,.eyes{transition:opacity .5s}.fly .ecg,.fly .sub,.fly .eyes{opacity:0}
-#meter{transition:opacity .6s,transform .5s cubic-bezier(.3,1.5,.5,1)}
 #mface{position:relative;width:96px;height:58px}
 .ml{position:absolute;font:900 20px/1 Montserrat;color:var(--m);text-shadow:1px 1px 0 var(--t),2px 2px 0 var(--n);transition:top .5s,transform .5s}.ml.w{color:#fff}
 .me{position:absolute;top:2px;width:12px;height:12px;transition:transform .5s}.me.l{left:29px}.me.r{left:55px}
 .me .ball{border-width:1.5px;box-shadow:none}.me .ball:after{width:5px;height:5px;left:3px;top:3px}
-#result{overflow-y:auto;justify-content:flex-start}
-.rv{width:min(310px,88vw);margin-top:16px;background:rgba(232,239,230,.12);border-radius:22px;padding:14px}
-.rvt{display:flex;align-items:center;gap:8px}.rvt svg{width:112px;flex:none}
-.bub{position:relative;background:var(--c);color:var(--g);border-radius:16px;padding:10px 12px;font:700 13px/1.35 Montserrat}
-.bub:before{content:"";position:absolute;left:-8px;top:34px;border:8px solid transparent;border-left:0;border-right-color:var(--c)}
-.stars{display:flex;justify-content:center;gap:6px;margin:10px 0}.stars button{background:none;border:0;font-size:30px;color:rgba(255,255,255,.35);padding:0}.stars button.on{color:#ffd54a}
-.rv textarea{width:100%;border:0;border-radius:12px;padding:10px;font:500 13px Montserrat;resize:none;background:#fff;color:var(--g)}
-.wv{transform-origin:108px 84px;animation:wv .7s ease-in-out infinite alternate}@keyframes wv{to{transform:rotate(-24deg)}}
-.shake{animation:sk .4s}@keyframes sk{25%{margin-left:-12px}75%{margin-left:12px}}
-.card textarea.err{border-color:var(--r)}
-#qr{background:#fff;padding:4cqw;border-radius:3cqw}
-.lk{font-size:12px;margin:6px}.lk input{width:min(340px,86vw);padding:6px;border-radius:8px;border:0;font-size:12px}.pv{color:var(--m);font:700 13px Montserrat;margin:6px}
-button.cta{border:0;cursor:pointer}
-.bkf label{display:block;font:700 12px Montserrat;color:var(--m);margin-bottom:10px}
-.bkf input,.bkf select,.bkf textarea{display:block;width:100%;margin-top:4px;border:0;border-radius:12px;padding:10px;font:500 14px Montserrat;background:#fff;color:var(--g)}
-.er{color:#ffc4c6;font:700 12px/1.4 Montserrat;min-height:16px}
-/* cards */
-#cards{justify-content:flex-start}#cards,#result{padding-top:74px}
 #disc{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:12px;z-index:9;width:calc(100% - 140px);font:700 10px/1.35 Montserrat;color:var(--m);opacity:0;transition:opacity .6s;pointer-events:none}#disc.on{opacity:1}
-.card.g{justify-content:space-between}.gt{font:900 21px/1.25 Montserrat;color:var(--n)}.gt span{color:var(--r)}
-.gq{width:min(150px,24vh);aspect-ratio:1;background:#fff;padding:8px;border-radius:14px}.gq svg{width:100%;height:100%;display:block}
-.card textarea{width:100%;border:2px solid var(--t);border-radius:14px;padding:10px;font:500 14px Montserrat;color:var(--g);background:#fff;resize:none}
-#result .oth{color:var(--m);font-style:italic;word-break:break-word}
-.hd{font:italic 500 22px 'Playfair Display',Georgia,serif;margin-bottom:4px}
-.cnt{font:500 12px Montserrat;color:var(--m);margin-bottom:14px}
-.deck{position:relative;width:min(300px,80vw);flex:1;min-height:0;max-height:400px}
-.card{position:absolute;inset:0;background:var(--c);color:var(--g);border-radius:28px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 14px 30px rgba(0,0,0,.35);touch-action:pan-y;user-select:none;transition:transform .35s,opacity .35s}
-.card.nx{transform:scale(.93) translateY(14px);pointer-events:none}
-.em{font-size:76px;line-height:1}
-.card h2{font:900 24px Montserrat;color:var(--n)}
-.card p{font:500 14px/1.4 Montserrat;color:var(--g)}
-.st{position:absolute;top:20px;font:900 20px Montserrat;border:3px solid;border-radius:10px;padding:2px 10px;opacity:0}
-.st.y{left:16px;color:var(--r);transform:rotate(-14deg)}.st.n{right:16px;color:var(--t);transform:rotate(14deg)}
-.btns{display:flex;gap:34px;margin-top:18px}
-.btns button{width:62px;height:62px;border-radius:50%;border:0;font-size:26px;font-weight:900;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.3)}
-.btns .no{background:var(--t)}.btns .ye{background:var(--r)}
-.hint{font:500 11px Montserrat;color:var(--m);margin-top:10px;letter-spacing:.06em}
-.fine{background:linear-gradient(160deg,#e8efe6,#c8f0e3)}
-/* result */
-#result h1{font:900 34px/1.1 Montserrat;text-align:center;color:var(--m);margin:10px 0}
-#result p{text-align:center;font:500 15px/1.5 Montserrat;max-width:300px;margin-bottom:18px}
-.big{font-size:90px}
+/* shared */
 .cta{display:block;background:var(--c);color:var(--g);font:900 17px Montserrat;padding:14px 26px;border-radius:30px;text-decoration:none;margin-bottom:12px;box-shadow:0 6px 14px rgba(0,0,0,.3)}
-.ghost{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:24px;padding:8px 20px;font:500 12px Montserrat}
-.fn{font-size:10px;opacity:.7;margin-top:16px;text-align:center;max-width:260px}
+button.cta{border:0;cursor:pointer}
+.ghost{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:24px;padding:8px 20px;font:500 12px Montserrat;cursor:pointer}
+.er{color:#ffc4c6;font:700 12px/1.4 Montserrat;min-height:16px;margin-bottom:6px}
+.fn{font-size:10px;opacity:.75;margin-top:16px;text-align:center;max-width:280px;line-height:1.4}
+/* gate */
+#app>#gate,#app>#result{padding:84px 0 0;overflow:hidden}
+#app>#result{padding-top:96px}
+.gw,.rw{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;width:100%;padding:6px 20px 26px;display:flex;flex-direction:column;align-items:center}
+.gi,.ri{margin:auto 0;display:flex;flex-direction:column;align-items:center;width:100%}
+.logo3d{font:900 58px/1 Montserrat;color:var(--m);text-align:center;text-shadow:1px 1px 0 var(--t),2px 2px 0 var(--t),3px 3px 0 var(--t),4px 4px 0 #2d6a78,5px 5px 0 var(--n),6px 7px 8px rgba(0,0,0,.45)}
+.logo3d b{color:#fff}
+.gecg{width:200px;height:26px;display:block;margin:6px auto 0}.gecg path{fill:none;stroke:var(--r);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.gsub{font:500 11px Montserrat;letter-spacing:.25em;text-transform:uppercase;color:var(--m);margin-top:10px}
+.gh{font:italic 500 24px 'Playfair Display',Georgia,serif;margin-top:18px}
+.gcard{width:min(330px,90vw);background:rgba(232,239,230,.12);border-radius:22px;padding:18px;margin-top:14px}
+.gp{font:500 13px/1.4 Montserrat;margin-bottom:14px}
+.gcard label{display:block;font:700 12px Montserrat;color:var(--m);margin-bottom:12px}
+.gcard input{display:block;width:100%;margin-top:4px;border:0;border-radius:12px;padding:12px;font:500 16px Montserrat;background:#fff;color:var(--g)}
+.gcard .cta{width:100%;text-align:center;margin:8px 0 0}
+/* sheet */
+#app>#sheet{padding:0;background:#f3f6f1;color:#223022;align-items:stretch}
+.stk{position:sticky;top:0;z-index:5;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.top{background:var(--n);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 120px 10px 14px;display:flex;align-items:center;min-height:84px}
+.top .hi{font:800 16px/1.25 Montserrat;min-width:0;overflow-wrap:anywhere}.top .hi small{display:block;font:500 12px Montserrat;color:var(--m)}
+.colh,.row{display:grid;grid-template-columns:38px 46px 1fr}
+.colh{background:#dfe7dc;border-bottom:2px solid #9fb09b;font:800 11px Montserrat;color:#3b5e3b;letter-spacing:.06em;text-transform:uppercase}
+.colh span{padding:7px 8px;border-right:1px solid #b9c7b6}.colh span:first-child,.colh span:nth-child(2){text-align:center;padding:7px 0}
+.intro{padding:12px 14px;font:600 13px/1.45 Montserrat;color:var(--n);background:#fff;border-bottom:1px solid #d3dcd0}
+.intro small{display:block;font:500 10px/1.4 Montserrat;color:#667a64;margin-top:4px}
+.row{position:relative;border-bottom:1px solid #d3dcd0;min-height:46px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.row>span{display:flex;align-items:center}
+.row input{position:absolute;opacity:0;pointer-events:none}
+.gx{justify-content:center;background:#e9eee7;color:#7a8a78;font:600 11px Montserrat;border-right:1px solid #d3dcd0}
+.cb{justify-content:center;border-right:1px solid #d3dcd0}
+.tx{padding:8px 10px;font:500 14px/1.3 Montserrat;color:#223022;overflow-wrap:anywhere}
+.box{width:24px;height:24px;border:2px solid var(--t);border-radius:6px;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s}
+.box:after{content:"";width:12px;height:6px;border:solid #fff;border-width:0 0 3px 3px;transform:rotate(-45deg) scale(0);margin-top:-3px;transition:transform .15s}
+.row.on{background:#dff5ee}.row.on .tx{font-weight:700;color:var(--n)}
+.row.on .box{background:var(--n);border-color:var(--n)}.row.on .box:after{transform:rotate(-45deg) scale(1)}
+.row.hd{background:var(--n);cursor:default;min-height:42px}
+.row.hd .gx{background:#14226b;color:#8c9be0;border-right-color:#14226b}
+.row.hd .tx{grid-column:2/-1;color:var(--m);font:900 13px Montserrat;letter-spacing:.08em;text-transform:uppercase}
+.row.oth{cursor:default}.row.oth .ta{grid-column:2/-1;padding:8px}
+.row.oth textarea{width:100%;border:1px solid #b9c7b6;border-radius:8px;padding:10px;font:500 14px Montserrat;color:var(--g);background:#fff;resize:none}
+.bar{position:sticky;bottom:0;z-index:6;margin-top:42px;background:#fff;border-top:3px solid var(--n);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px));min-height:56px}
+.bar .cn{font:700 13px/1.3 Montserrat;color:var(--n)}.bar .cn b{font-size:20px}.bar .cn small{display:block;font:500 10px Montserrat;color:#667a64}
+.tickbtn{border:0;background:none;padding:0;width:92px;margin-top:-34px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tickbtn svg{width:100%;display:block}
+.tickbtn.pulse{animation:pl 1.3s ease-in-out infinite}
+@keyframes pl{50%{transform:scale(1.06)}}
+/* result */
+#app>#result{text-align:center}
+.bigtick{width:108px;animation:popin .8s cubic-bezier(.3,1.5,.5,1) both;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}.bigtick svg{width:100%;display:block}
+@keyframes popin{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:none;opacity:1}}
+.cur{font:700 clamp(32px,9.5vw,44px)/1.22 'Dancing Script','Segoe Script',cursive;color:#fff;max-width:350px;margin:12px 0 20px;text-shadow:0 2px 0 var(--n),0 6px 16px rgba(0,0,0,.35);text-wrap:balance;animation:fup .9s ease .5s both}
+.cur em{font-style:normal;color:var(--m)}
+@keyframes fup{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+.book{display:flex;align-items:center;gap:12px;background:var(--c);color:var(--g);text-decoration:none;border-radius:36px;padding:9px 24px 9px 9px;margin:0 0 20px;box-shadow:0 6px 14px rgba(0,0,0,.3);text-align:left;-webkit-tap-highlight-color:transparent;animation:fup .9s ease .7s both}
+.book .ph{flex:none;width:50px;height:50px;border-radius:50%;background:var(--n);border:2.5px solid var(--c);box-shadow:0 0 0 2px var(--n);display:grid;place-items:center}
+.book .ph svg{width:25px;height:25px;fill:var(--m);animation:ring 2.6s ease-in-out infinite}
+@keyframes ring{0%,50%,100%{transform:rotate(0)}10%,30%{transform:rotate(-16deg)}20%,40%{transform:rotate(16deg)}}
+.book b{display:block;font:900 17px/1.15 Montserrat;color:var(--g)}
+.book small{display:block;font:700 15px/1.3 Montserrat;color:var(--n);letter-spacing:.05em;margin-top:2px}
+.rv{width:min(310px,88vw);background:rgba(232,239,230,.12);border-radius:22px;padding:14px;animation:fup .9s ease .9s both}
+.rvt{display:flex;align-items:center;gap:8px}.rvt svg{width:112px;flex:none}
+.bub{position:relative;background:var(--c);color:var(--g);border-radius:16px;padding:10px 12px;font:700 13px/1.35 Montserrat;text-align:left}
+.bub:before{content:"";position:absolute;left:-8px;top:34px;border:8px solid transparent;border-left:0;border-right-color:var(--c)}
+.stars{display:flex;justify-content:center;gap:6px;margin:10px 0}.stars button{background:none;border:0;font-size:32px;color:rgba(255,255,255,.35);padding:0;cursor:pointer}.stars button.on{color:#ffd54a}
+.rv textarea{width:100%;border:0;border-radius:12px;padding:10px;font:500 14px Montserrat;resize:none;background:#fff;color:var(--g)}
+.wv{transform-origin:108px 84px;animation:wv .7s ease-in-out infinite alternate}@keyframes wv{to{transform:rotate(-24deg)}}
+.lk{font-size:12px;margin:6px}.lk input{width:min(340px,86vw);padding:6px;border-radius:8px;border:0;font-size:12px}.pv{color:var(--m);font:700 13px Montserrat;margin:6px}
+#qr{background:#fff;padding:4cqw;border-radius:3cqw}
 /* standee */
 #standee{position:fixed;inset:0;overflow:auto;background:#10163a;display:flex;flex-direction:column;align-items:center;padding:16px;color:#fff}
 #sd{container-type:inline-size;width:min(92vw,400px,32vh);aspect-ratio:2/5.3;flex:none;position:relative;overflow:hidden;border-radius:2cqw;background:radial-gradient(circle at 100% 0,#3d62a0 0 30cqw,transparent 30.3cqw),radial-gradient(circle at 0 62%,var(--t) 0 34cqw,transparent 34.3cqw),var(--b);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:7cqw 6cqw 0;text-align:center}
@@ -133,24 +155,54 @@ button.cta{border:0;cursor:pointer}
 #standee button{margin:14px;background:var(--m);color:var(--n);border:0;border-radius:24px;padding:10px 24px;font:900 14px Montserrat}
 #standee .note{font-size:11px;opacity:.7;max-width:360px;text-align:center}
 @media print{@page{size:24in 63.6in;margin:0}html,body{overflow:visible;height:auto}#standee{position:static;padding:0;background:none}#sd{width:24in;border-radius:0}#standee button,#standee .note,#standee .lk,#standee .pv{display:none}}
+
+
 </style></head><body>
 <div id="disc">Bliss Pulse Neurotherapy Clinic · Wakad, Pune. This is a fun check, not a medical diagnosis.</div>
 <div id="meter"><div id="mface"><div class="me l"><div class="ball"></div></div><div class="me r"><div class="ball"></div></div></div><div class="trk"><div class="mk" id="mk"></div></div></div>
 <div id="app">
- <section id="intro">
+ <section id="intro" class="on">
   <div class="stage" id="stage"><div class="eyes"><div class="eye l"><div class="ball"></div></div><div class="eye rt"><div class="ball"></div></div></div></div>
   <svg class="ecg" viewBox="0 0 300 36"><path d="M0 18H105l10-14 14 30 10-16H300"/></svg>
   <div class="sub">Bliss Pulse · Neurotherapy</div>
   <div class="cap c1">Hey you 😉 Feeling the Bliss?</div>
   <div class="cap c2">No medicine · No side effects · No pain</div><div class="cap c3">Gentle care for a healthier, happier you</div><div class="cap c4">Let’s see how you’re really doing →</div>
  </section>
- <section id="cards">
-  <div class="hd" id="hd">Do you feel this?</div><div class="cnt" id="cnt"></div>
-  <div class="deck" id="deck"></div>
-  <div class="btns"><button class="no" id="bn" aria-label="Not me">✕</button><button class="ye" id="by" aria-label="Yes">✓</button></div>
-  <div class="hint">← swipe left: not me &nbsp;·&nbsp; swipe right: yes, me →</div>
+
+ <section id="gate"><div class="gw"><div class="gi">
+  <div class="logo3d">BLISS<br><b>PULSE</b></div>
+  <svg class="gecg" viewBox="0 0 300 36"><path d="M0 18H105l10-14 14 30 10-16H300"/></svg>
+  <div class="gsub">Neurotherapy Clinic</div>
+  <div class="gh">Are you in Bliss?</div>
+  <form class="gcard" id="gf" novalidate>
+   <p class="gp">First, tell us a little about you.</p>
+   <label>Your name<input id="gn" autocomplete="name" maxlength="60" placeholder="Full name"></label>
+   <label>Your age<input id="ga" type="number" inputmode="numeric" min="1" max="120" placeholder="Age in years"></label>
+   <div class="er" id="ger"></div>
+   <button class="cta" type="submit">Continue →</button>
+  </form>
+ </div></div></section>
+
+ <section id="sheet">
+  <div class="stk">
+   <div class="top"><div class="hi"><span id="hn"></span><small id="ha"></small></div></div>
+   <div class="colh"><span>#</span><span>✓</span><span>Health issue</span></div>
+  </div>
+  <div class="intro">Tick everything you relate to, then press the BLISS tick at the bottom.<small>Bliss Pulse Neurotherapy Clinic · Wakad, Pune. This is a fun check, not a medical diagnosis.</small></div>
+  <div id="grid"></div>
+  <div class="bar"><div class="cn" id="cnt"><b>0</b> selected<small>Tap the tick when done →</small></div><button class="tickbtn" id="tk" type="button" aria-label="Done"><svg viewBox="0 0 122 108" role="img" aria-label="Bliss tick"><path d="M6 60 28 38 48 58 92 12 116 34 48 104Z" fill="#a8e6d6" stroke="#1c2f8a" stroke-width="4" stroke-linejoin="round"/><text transform="translate(81 46) rotate(-46)" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,sans-serif" font-weight="900" font-size="15" letter-spacing="1" fill="#1c2f8a">BLISS</text></svg></button></div>
  </section>
- <section id="result"></section>
+
+ <section id="result"><div class="rw"><div class="ri">
+  <div class="bigtick"><svg viewBox="0 0 122 108" role="img" aria-label="Bliss tick"><path d="M6 60 28 38 48 58 92 12 116 34 48 104Z" fill="#a8e6d6" stroke="#1c2f8a" stroke-width="4" stroke-linejoin="round"/><text transform="translate(81 46) rotate(-46)" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,sans-serif" font-weight="900" font-size="15" letter-spacing="1" fill="#1c2f8a">BLISS</text></svg></div>
+  <div class="cur">If you still think you’re healthy — or not — drop in at <em>Bliss Pulse</em> and feel the Bliss!</div>
+  <a class="book" id="bk" href="tel:+918983455502"><span class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></span><span><b>Book an appointment</b><small>89834 55502</small></span></a>
+  <div class="rv"><div class="rvt"><span id="mas"></span><div class="bub">Enjoyed your Bliss check? Please leave a review &amp; comments!</div></div>
+   <div class="stars" id="stars"><button type="button" data-n="1" aria-label="1 stars">★</button><button type="button" data-n="2" aria-label="2 stars">★</button><button type="button" data-n="3" aria-label="3 stars">★</button><button type="button" data-n="4" aria-label="4 stars">★</button><button type="button" data-n="5" aria-label="5 stars">★</button></div>
+   <textarea id="cm" rows="3" maxlength="400" placeholder="Write your comments…"></textarea>
+   <a class="cta" id="snd" href="https://wa.me/918983455502" target="_blank" rel="noopener" style="margin:12px 0 0;text-align:center">💬 Send review on WhatsApp</a></div>
+  <button class="ghost" id="back" type="button" style="margin:16px 0 4px">← Edit my answers</button>
+ </div></div></section>
 </div>
 <div id="standee" hidden>
  <div id="sd">
@@ -166,14 +218,16 @@ button.cta{border:0;cursor:pointer}
  <button onclick="window.print()">Print standee</button>
  <label class="lk">QR opens: <input id="lnk" value="https://saket61923-eng.github.io/WELCOME-TO-BLISS-/" oninput="mkQR()"></label>
  <a class="pv" href="#play">▶ Preview the phone experience</a>
- <div class="note">Scanning the QR starts the 30-second animation.</div>
-</div>
-<script>
-// Replace with the client’s list when ready: [emoji, title, one-line description]
-const DIS=[["🤕","Migraine & headaches","Pounding head, light sensitivity","P"],["💆","Neck & shoulder pain","Stiffness that never really leaves","P"],["🦴","Back pain & sciatica","Aches when sitting, bending or waking","P"],["🦵","Joint pain","Knees, hips or wrists complaining daily","P"],["😴","Poor sleep","Tossing, turning, waking up tired","M"],["😰","Stress & anxiety","Racing mind, tight chest","M"],["🔋","Constant fatigue","Low energy even after resting","M"],["⚡","Numbness & tingling","Pins and needles in hands or feet","P"],["🌀","Digestive troubles","Bloating, acidity, irregular gut","B"],["🤧","Low immunity","Catching every cold going around","B"]];
-const $=s=>document.querySelector(s);
-const BASE=()=>[...DIS.map(d=>({t:'dis',e:d[0],h:d[1],p:d[2],g:d[3]})),{t:'other'}];let Q=BASE(),list=[],gy={};
-let idx=0,score=50,yes=0,fine=false,other='',tms=[];const T=(f,ms)=>tms.push(setTimeout(f,ms)),clr=()=>{tms.forEach(clearTimeout);tms=[]};
+ <div class="note">Scanning the QR plays a short animation, then asks for name and age.</div>
+</div><script>
+const SHEET=[{"h": "BONE AND MUSCULAR PAIN", "i": ["Arthritis", "Gout", "Bone overgrowth / Bone spur", "Back pain / Low back pain", "Osteoarthritis", "Osteoporosis", "Knee pain", "Rheumatoid arthritis", "Bone spur in foot", "Clubfoot / Talipes equinovarus", "Sprain", "Spondylitis", "Joint pain / Arthralgia", "Muscle pain / Myalgia", "Postmenopausal osteoporosis", "Arthritic / Rheumatic disorders", "Chest pain", "Muscle cramp / Spasm (colloquial expression)", "Sciatica", "Heel pain", "Foot pain", "Leg pain", "Neck pain", "Wrist pain", "Shoulder pain", "Body aches / Generalized pain", "Spondylosis", "Joint stiffness", "Cervical pain / Neck pain", "Bone pain", "Hand pain", "Muscle weakness", "Heel spur / Calcaneal spur", "Flat feet / Pes planus", "Muscle cramps", "Rib pain", "Jaw pain", "Thigh pain", "Neck stiffness", "Spinal / Vertebral pain", "Ankle pain", "Frozen shoulder / Adhesive capsulitis"]}, {"h": "Brain/Nerve Related", "i": ["Migraine", "Alzheimer's disease/ Dementia", "Cervical Pain", "Epilepsy", "Carpal tunnel syndrome", "Parkinson's disease", "Sleep apnea", "Cerebral palsy", "Insomnia", "Brain infection", "Memory loss / Amnesia", "Meningitis", "Paralysis", "Nerve weakness (non-specific symptom)", "Bell's palsy", "Facial paralysis", "Nerve compression / Pinched nerve", "Neuritis / Nerve inflammation"]}, {"h": "STOMACH, LIVER, MOUTH AND DIGESTION", "i": ["Jaundice", "Constipation", "Diarrhea", "Fatty liver disease / Hepatic steatosis", "Hemorrhoids / Piles", "Digestive system disorders", "Gastritis", "Peptic ulcer disease", "Gastroenteritis", "Cholecystitis", "Flatulence / Intestinal gas", "Irritable bowel syndrome (IBS)", "Burning mouth syndrome / Oral burning", "Ulcer / Nonhealing sore (site unspecified)", "Gingivitis", "Dental plaque", "Hernia", "Anal fissure (context-dependent)", "Toothache", "Indigestion", "Acid reflux / Heartburn (commonly called acidity)", "Dental infection", "Liver disease", "Pancreatitis", "Mouth ulcers", "Abdominal pain", "Halitosis / Bad breath", "Bleeding gums", "Dysentery", "Heartburn", "Gallstones / Cholelithiasis", "Upset stomach", "Liver cirrhosis", "Crohn's disease", "Molar tooth pain", "Tooth sensitivity", "Wisdom tooth pain", "Anal fistula (context-dependent)", "Hepatomegaly / Enlarged liver", "Tongue ulcer", "Hepatitis", "Gastrointestinal disorders"]}, {"h": "HEART AND BLOOD", "i": ["Hypertension / High blood pressure", "Thalassemia", "High cholesterol / Hypercholesterolemia", "Heart disease", "Varicose veins", "Blood clotting disorder / Coagulopathy", "Hypotension / Low blood pressure", "Rheumatic fever", "Anemia"]}, {"h": "NOSE, THROAT, LUNGS AND BREATHING", "i": ["Sinus condition / Sinusitis (if inflamed)", "Allergic rhinitis / Hay fever", "Asthma", "Wheezing", "Influenza / Flu", "Laryngitis", "Chronic obstructive pulmonary disease (COPD)", "Lung disease", "Tonsillitis", "Sore throat", "Bronchitis", "Common cold", "Nasal congestion / Blocked nose", "Throat infection / Pharyngitis", "Chest infection", "Lung infection", "Runny nose / Rhinorrhea", "Shortness of breath / Dyspnea", "Sputum / Phlegm", "Difficulty breathing / Dyspnea", "Throat irritation", "Dry cough", "Throat swelling", "Pricking sensation in throat", "Burning throat"]}, {"h": "EAR", "i": ["Hearing loss / Deafness", "Ménière disease", "Perforated eardrum / Tympanic membrane perforation", "Tinnitus", "Ear pain / Otalgia", "Ear disorders"]}, {"h": "URINARY TRACT AND REPRODUCTIVE ORGANS", "i": ["Leukorrhea / Vaginal discharge", "Bladder infection (Cystitis)", "Kidney stones / Nephrolithiasis", "Hydrocele", "Ovarian cyst / Ovarian mass", "Polycystic ovary syndrome (PCOS)", "Uterine fibroids / Leiomyomas", "Urinary tract infection (UTI)", "Dysuria / Painful urination", "Frequent urination", "Nephritis / Kidney inflammation", "Kidney disease"]}, {"h": "GENERAL HEALTH ISSUES", "i": ["Hiccups / Singultus", "Dysphagia / Difficulty swallowing", "Nausea and vomiting", "Sleep deprivation", "Dry mouth / Xerostomia", "Fever / Pyrexia", "Headache", "Edema / Swelling", "Cough", "Inflammatory disease (unspecified)", "Dizziness", "Leg swelling / Peripheral edema", "Facial swelling", "Loss of appetite / Anorexia (symptom)", "Speech difficulty / Dysarthria or aphasia", "Splenomegaly / Enlarged spleen"]}, {"h": "LIFESTYLE, ENDOCRINE AND METABOLIC", "i": ["Diabetes mellitus", "Obesity", "Malnutrition", "Cushing syndrome", "Growth hormone deficiency", "Hypertriglyceridemia", "Hypoglycemia", "Anorexia / Loss of appetite (may mean eating disorder)", "Thyroid disorder (unspecified)", "Goiter", "Hypocalcemia / Calcium deficiency", "Nutritional deficiency", "Elevated lipoprotein levels", "Elevated uric acid / Hyperuricemia", "Hypercalcemia", "Addison disease / Primary adrenal insufficiency", "Hypomagnesemia", "Electrolyte imbalance", "Pellagra / Niacin deficiency", "Thiamine deficiency / Beriberi", "Vitamin A deficiency", "Vitamin C deficiency", "Vitamin D deficiency", "Vitamin E deficiency", "Vitamin K deficiency", "Iron deficiency", "Vitamin B12 deficiency", "Iodine deficiency", "Hyponatremia / Sodium deficiency", "Protein deficiency", "Zinc deficiency", "Phosphorus deficiency / Hypophosphatemia", "Vitamin B complex deficiency", "Vitamin B3 deficiency / Niacin deficiency", "Vitamin B9 deficiency / Folate deficiency", "Low serotonin (non-specific term)", "Salt deficiency (non-specific)"]}, {"h": "PSYCHOLOGICAL WELL-BEING", "i": ["Stress", "Depression / Major depressive disorder", "Attention-deficit/hyperactivity disorder (ADHD)", "Anxiety", "Phobia / Phobic disorder", "Bipolar disorder", "Dyslexia", "Post-traumatic stress disorder (PTSD)", "Panic attack / Panic disorder", "Bedwetting / Nocturnal enuresis", "Suicide / Suicidal behavior"]}, {"h": "SKIN", "i": ["Acne vulgaris", "Psoriasis", "Eczema / Dermatitis", "Itching / Pruritus", "Ringworm / Tinea (often meant by 'daad')", "Skin rash", "Sunburn", "Dandruff / Pityriasis capitis", "Boils / Furuncles", "Corn / Clavus", "Skin pigmentation change", "Skin allergy / Allergic dermatitis", "Pus / Purulent discharge"]}, {"h": "INFECTIONS", "i": ["Dengue fever", "Malaria", "Typhoid fever", "Chikungunya", "Smallpox", "Rabies", "Scarlet fever", "Yellow fever", "Measles", "Mumps", "Pertussis / Whooping cough", "Inflammatory bowel disease (IBD)", "Pneumonia", "Tuberculosis (TB)", "Chickenpox (Varicella)", "Onychomycosis / Fungal nail infection", "Shingles / Herpes zoster", "Rotavirus infection", "Tetanus", "Bacterial infection", "Fungal infection", "Athlete's foot / Tinea pedis", "Parasitic infection", "Intestinal worm infestation", "Viral fever", "Viral infection"]}];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ORDER=['intro','gate','sheet','result'];
+let who={n:'',a:''},picked=new Set(),st=0,score=50,tms=[],FLAT=[];
+const T=(f,ms)=>tms.push(setTimeout(f,ms)),clr=()=>{tms.forEach(clearTimeout);tms=[]};
+function show(id){const k=ORDER.indexOf(id);$$('#app>section').forEach(s=>{const j=ORDER.indexOf(s.id);s.classList.toggle('on',j===k);s.classList.toggle('past',j<k)});$('#'+id).scrollTop=0;$$('#'+id+' .gw,#'+id+' .rw').forEach(x=>x.scrollTop=0);$('#disc').classList.toggle('on',id==='gate'||id==='result')}
+/* ---- intro animation + mood meter (unchanged from before) ---- */
 const stage=$('#stage');
 "BLISS".split("").forEach((ch,i)=>{const k=i-2,d=document.createElement('div');d.className='L';
 d.style.cssText=`left:calc(50% + ${k*58-26}px);top:${118-14*k*k}px;--r:${k*11}deg;--sx:${i<2?-330:330}px;--ry:${i<2?-85:85}deg;--d:${[0,1.4,2.8,2.1,.7][i]}s`;
@@ -183,62 +237,47 @@ function setMeter(){const c=Math.min(1,score/50);
 mf.querySelectorAll('.ml').forEach((e,i)=>{const k=i-2;e.style.left=(48+k*17)+'px';e.style.top=(35-4.2*c*k*k)+'px';e.style.transform=`translateX(-50%) rotate(${k*11*c}deg)`});
 mf.querySelectorAll('.me').forEach(e=>e.style.transform=`scaleY(${.15+.85*c})`);
 $('#mk').style.left=score+'%';$('#meter').style.transform=`scale(${.75+score*.005})`}
-function startIntro(){clr();score=50;setMeter();const i=$('#intro');stage.style.transition='none';stage.style.transform='';stage.style.opacity=1;i.classList.remove('go','out','fly');void i.offsetWidth;i.classList.add('go');
-$('#cards').classList.remove('in');$('#result').classList.remove('in');$('#meter').classList.remove('on');$('#disc').classList.remove('on');
-T(fly,27400);T(land,29200);T(toCards,29400)}
+function startIntro(){clr();score=50;setMeter();const i=$('#intro');stage.style.transition='none';stage.style.transform='';stage.style.opacity=1;i.classList.remove('go','fly');void i.offsetWidth;i.classList.add('go');
+show('intro');$('#meter').classList.remove('on');
+T(fly,27400);T(land,29200);T(toGate,29400)}
 function fly(){const s=stage.getBoundingClientRect(),m=mf.getBoundingClientRect();$('#intro').classList.add('fly');
 stage.style.transition='transform 1.8s cubic-bezier(.6,0,.3,1),opacity .4s';
 stage.style.transform=`translate(${m.left+48-s.left-s.width/2}px,${m.top+37.5-s.top-s.height/2}px) scale(.3)`}
 function land(){$('#meter').classList.add('on');stage.style.opacity=0}
-function toCards(){idx=0;score=50;yes=0;fine=false;other='';Q=BASE();list=[];gy={};setMeter();$('#intro').classList.add('out');$('#cards').classList.add('in');$('#meter').classList.add('on');$('#disc').classList.add('on');render()}
-function card(i){const it=Q[i],c=document.createElement('div');c.className='card'+(i===idx?'':' nx')+(it.t==='fine'?' fine':'');
-let h,lb=['YES','NOPE'];
-if(it.t==='other'){h=`<div class="em">✍️</div><h2>Anything else?</h2><textarea rows="4" maxlength="400" placeholder="Describe any other issue you face…"></textarea><p>Swipe right to add it (description required) · left if nothing else</p>`;lb=['ADD','NONE']}
-else if(it.t==='fine')h=`<div class="em">🌟</div><h2>I am completely fine</h2><p>No complaints — I feel balanced, light and happy!</p>`;
-else h=`<div class="em">${it.e}</div><h2>${it.h}</h2><p>${it.p}</p>`;
-c.innerHTML=h+`<b class="st y">${lb[0]}</b><b class="st n">${lb[1]}</b>`;
-const ta=c.querySelector('textarea');if(ta){ta.value=other;ta.oninput=()=>other=ta.value}
-return c}
-function render(){const dk=$('#deck'),it=Q[idx],last=Q.length-1;dk.innerHTML='';
-$('#cnt').textContent=(idx+1)+' / '+(Q.length+(yes===0&&!Q.some(x=>x.t==='fine')?1:0));
-$('#hd').textContent=it.t==='other'?'Tell us more':it.t==='fine'?'Last one!':'Do you feel this?';
-for(const i of [idx+1,idx])if(i<Q.length){const c=card(i);dk.appendChild(c);if(i===idx)drag(c)}}
-function drag(el){let sx=0,dx=0,on=false;const y=el.querySelector('.y'),n=el.querySelector('.n');
-el.onpointerdown=e=>{if(e.target.tagName==='TEXTAREA')return;on=true;sx=e.clientX;el.setPointerCapture(e.pointerId);el.style.transition='none'};
-el.onpointermove=e=>{if(!on)return;dx=e.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;y.style.opacity=Math.max(0,dx/90);n.style.opacity=Math.max(0,-dx/90)};
-el.onpointerup=()=>{if(!on)return;on=false;el.style.transition='';if(Math.abs(dx)>90)decide(dx>0);else{el.style.transform='';y.style.opacity=n.style.opacity=0}dx=0}}
-function decide(ans){const el=$('#deck .card:last-child');if(!el||el.dataset.g)return;const it=Q[idx];if(it.t==='other'&&ans&&!other.trim()){el.style.transform='';el.querySelectorAll('.st').forEach(x=>x.style.opacity=0);el.classList.add('shake');const ta=el.querySelector('textarea');ta.classList.add('err');ta.placeholder='Please describe your issue — required';ta.focus();setTimeout(()=>el.classList.remove('shake'),450);return}el.dataset.g=1;
-if(document.activeElement)document.activeElement.blur();
-el.style.transform=`translateX(${ans?520:-520}px) rotate(${ans?25:-25}deg)`;el.style.opacity=0;
-if(it.t==='dis'){score+=ans?-5:5;if(ans){yes++;list.push(it.h);gy[it.g]=(gy[it.g]||0)+1;const rest=Q.splice(idx+1);Q.push(...rest.filter(x=>x.g===it.g),...rest.filter(x=>x.g!==it.g))}}
-else if(it.t==='other'){if(ans&&other.trim()){yes++;score-=5;list.push(other.trim())}else other='';if(!yes)Q.push({t:'fine'})}
-else if(it.t==='fine'){fine=ans;if(ans)score=100}
-score=Math.max(0,Math.min(100,score));setMeter();idx++;setTimeout(()=>idx>=Q.length?result():render(),320)}
-function mascot(c){return `<svg viewBox="0 0 160 210"><path d="M68 136L62 184M92 136L98 184M52 84L26 114" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="58" cy="191" rx="13" ry="6" fill="#e8575a"/><ellipse cx="102" cy="191" rx="13" ry="6" fill="#e8575a"/><rect x="48" y="72" width="64" height="68" rx="18" fill="#5f9ea0"/><text x="80" y="111" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="14" fill="#fff" stroke="#1c2f8a" stroke-width=".5">BLISS</text><circle cx="26" cy="114" r="7" fill="#e8efe6"/><g class="wv"><path d="M108 84L136 54" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round"/><circle cx="137" cy="52" r="7" fill="#e8efe6"/></g><circle cx="80" cy="40" r="31" fill="#e8efe6" stroke="#1c2f8a" stroke-width="3"/><ellipse cx="69" cy="34" rx="4" ry="${1+3*c}" fill="#1c2f8a"/><ellipse cx="91" cy="34" rx="4" ry="${1+3*c}" fill="#1c2f8a"/><path d="M63 50Q80 ${50+17*c} 97 50" fill="none" stroke="#e8575a" stroke-width="3.5" stroke-linecap="round"/></svg>`}
-const GT={P:'pain and stiffness',M:'stress, sleep and energy',B:'digestion and immunity'};
-function result(){const r=$('#result'),c=Math.min(1,score/50),k=Object.keys(gy).sort((a,b)=>gy[b]-gy[a])[0];$('#cards').classList.remove('in');r.scrollTop=0;
-r.innerHTML=fine?`<h1>You’re in BLISS! 😄</h1><p>Wonderful! Keep that pulse happy — a gentle check-in now and then keeps it that way.</p>`
-:`<h1>${yes?yes+' thing'+(yes>1?'s':'')+' to look at':'Let’s have a chat'}</h1><p>${k?'Most of what you shared is about '+GT[k]+'. ':''}Natural, hands-on care with no medicine, no side effects and no pain could help you get back to Bliss.</p>`;
-if(other.trim()){const p=document.createElement('p');p.className='oth';p.textContent='You also told us: “'+other.trim()+'”';r.querySelector('p').after(p)}
-r.insertAdjacentHTML('beforeend',`<button class="cta" id="bk">📅 Book an appointment</button><div class="rv"><div class="rvt">${mascot(c)}<div class="bub">Enjoyed your Bliss check? Please leave a review &amp; comments!</div></div><div class="stars">${[1,2,3,4,5].map(n=>`<button data-n="${n}" aria-label="${n} stars">★</button>`).join('')}</div><textarea id="cm" rows="3" maxlength="400" placeholder="Write your comments…"></textarea><a class="cta" id="snd" href="https://wa.me/918983455502" target="_blank" rel="noopener" style="margin:12px 0 0;text-align:center">💬 Send review on WhatsApp</a></div><button class="ghost" id="again" style="margin:14px 0 8px">Play again</button>`);
-let st=0;const sb=[...r.querySelectorAll('.stars button')];
-sb.forEach(b=>b.onclick=()=>{st=+b.dataset.n;sb.forEach(x=>x.classList.toggle('on',+x.dataset.n<=st))});
-$('#snd').onclick=()=>{$('#snd').href='https://wa.me/918983455502?text='+encodeURIComponent('Hi Bliss Pulse! My review: '+('★'.repeat(st)||'(no rating)')+'\n'+$('#cm').value)};
-$('#bk').onclick=book;r.classList.add('in');$('#again').onclick=startIntro}
-function book(){const r=$('#result'),d=new Date(),iso=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);r.scrollTop=0;
-r.innerHTML=`<h1>Book your session</h1><p>Fill in the details, then send them on WhatsApp to confirm.</p><div class="rv bkf"><label>Your name<input id="bkn" autocomplete="name"></label><label>Phone number<input id="bkp" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile"></label><label>Preferred date<input id="bkd" type="date" min="${iso}"></label><label>Preferred time<select id="bkt"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label><label>Reason for visit<textarea id="bkr" rows="3"></textarea></label><div class="er" id="ber"></div><a class="cta" id="bks" href="https://wa.me/918983455502" target="_blank" rel="noopener" style="margin:6px 0 0;text-align:center">✅ Confirm on WhatsApp</a><a class="ghost" href="tel:8983455502" style="display:block;text-align:center;text-decoration:none;margin-top:10px">or call 89834 55502</a></div><button class="ghost" id="bb" style="margin:14px 0 8px">← Back</button>`;
-$('#bkr').value=fine?'Wellness check-up':(list.join(', ')||'General consultation');$('#bb').onclick=result;
-$('#bks').onclick=e=>{const n=$('#bkn').value.trim(),p=$('#bkp').value.replace(/\D/g,''),dt=$('#bkd').value;
-if(!n||p.length<10||!dt){e.preventDefault();$('#ber').textContent='Please add your name, a 10-digit phone number and a date.';return}
-$('#bks').href='https://wa.me/918983455502?text='+encodeURIComponent('Hi Bliss Pulse! I’d like to book an appointment.\nName: '+n+'\nPhone: '+p+'\nDate: '+dt+'\nTime: '+$('#bkt').value+'\nReason: '+$('#bkr').value.trim());
-$('#ber').textContent='Opening WhatsApp — press send there to confirm your request.'}}
-$('#bn').onclick=()=>decide(false);$('#by').onclick=()=>decide(true);
+function toGate(){clr();land();show('gate')}
+/* ---- checklist ---- */
+const calc=()=>Math.max(0,50-5*picked.size);
+function mascot(){return `<svg viewBox="0 0 160 210"><path d="M68 136L62 184M92 136L98 184M52 84L26 114" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="58" cy="191" rx="13" ry="6" fill="#e8575a"/><ellipse cx="102" cy="191" rx="13" ry="6" fill="#e8575a"/><rect x="48" y="72" width="64" height="68" rx="18" fill="#5f9ea0"/><text x="80" y="111" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="14" fill="#fff" stroke="#1c2f8a" stroke-width=".5">BLISS</text><circle cx="26" cy="114" r="7" fill="#e8efe6"/><g class="wv"><path d="M108 84L136 54" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round"/><circle cx="137" cy="52" r="7" fill="#e8efe6"/></g><circle cx="80" cy="40" r="31" fill="#e8efe6" stroke="#1c2f8a" stroke-width="3"/><ellipse cx="69" cy="34" rx="4" ry="4" fill="#1c2f8a"/><ellipse cx="91" cy="34" rx="4" ry="4" fill="#1c2f8a"/><path d="M63 50Q80 67 97 50" fill="none" stroke="#e8575a" stroke-width="3.5" stroke-linecap="round"/></svg>`}
+function build(){let r=0,h='';FLAT=[];
+ for(const s of SHEET){r++;h+=`<div class="row hd"><span class="gx">${r}</span><span class="tx">${esc(s.h)}</span></div>`;
+  for(const t of s.i){r++;h+=`<label class="row"><input type="checkbox" value="${FLAT.length}"><span class="gx">${r}</span><span class="cb"><i class="box"></i></span><span class="tx">${esc(t)}</span></label>`;FLAT.push(t)}}
+ r++;h+=`<div class="row hd"><span class="gx">${r}</span><span class="tx">Other issues</span></div>`;
+ r++;h+=`<div class="row oth"><span class="gx">${r}</span><span class="ta"><textarea id="oth" rows="3" maxlength="400" placeholder="Anything else? Describe any other issue you face…"></textarea></span></div>`;
+ $('#grid').innerHTML=h}
+function upd(){const n=picked.size;$('#cnt').innerHTML=`<b>${n}</b> selected<small>Tap the tick when done →</small>`;$('#tk').classList.toggle('pulse',n>0)}
+function startApp(){who={n:'',a:''};picked=new Set();st=0;$('#gn').value=$('#ga').value='';$('#ger').textContent='';$('#cm').value='';$$('#stars button').forEach(b=>b.classList.remove('on'));$('#mas').innerHTML=mascot();build();upd();startIntro()}
+$('#gf').addEventListener('submit',e=>{e.preventDefault();const n=$('#gn').value.trim().replace(/\s+/g,' '),a=parseInt($('#ga').value,10);
+ if(n.length<2){$('#ger').textContent='Please enter your name.';$('#gn').focus();return}
+ if(!(a>=1&&a<=120)){$('#ger').textContent='Please enter your age (1 to 120).';$('#ga').focus();return}
+ who={n,a};$('#hn').textContent=n;$('#ha').textContent=a+' yrs';if(document.activeElement)document.activeElement.blur();show('sheet')});
+$('#grid').addEventListener('change',e=>{const i=e.target;if(i.type!=='checkbox')return;i.closest('.row').classList.toggle('on',i.checked);
+ i.checked?picked.add(+i.value):picked.delete(+i.value);score=calc();setMeter();upd()});
+/* ---- review (WhatsApp) ---- */
+function rl(){let iss=[...picked].sort((a,b)=>a-b).map(i=>FLAT[i]).join(', ');
+ if(iss.length>900){iss=iss.slice(0,900);iss=iss.slice(0,iss.lastIndexOf(', '))+' …and more'}
+ const oth=($('#oth')&&$('#oth').value.trim())||'';
+ const t='Hi Bliss Pulse!\nName: '+who.n+'\nAge: '+who.a+'\nIssues ticked ('+picked.size+'): '+(iss||'none')+(oth?'\nOther: '+oth:'')+'\nReview: '+('★'.repeat(st)||'(no rating)')+'\nComments: '+($('#cm').value.trim()||'-');
+ $('#snd').href='https://wa.me/918983455502?text='+encodeURIComponent(t)}
+$$('#stars button').forEach(b=>b.onclick=()=>{st=+b.dataset.n;$$('#stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=st));rl()});
+$('#cm').oninput=rl;$('#snd').addEventListener('click',rl);
+$('#tk').onclick=()=>{score=picked.size?calc():100;setMeter();rl();show('result')};
+$('#back').onclick=()=>{score=calc();setMeter();show('sheet')};
 function buildQR(el,u){const q=qrcode(0,'M');q.addData(u);q.make();const n=q.getModuleCount();let s='';
 for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))s+=`<rect x="${c}" y="${r}" width="1.02" height="1.02"/>`;
 el.innerHTML=`<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" fill="#1c2f8a">${s}</svg>`}
 const QS={"u": "https://saket61923-eng.github.io/WELCOME-TO-BLISS-/", "m": ["11111110011110100111101111111", "10000010100111011010101000001", "10111010100100100111101011101", "10111010010001100011001011101", "10111010110110101010001011101", "10000010101010011111101000001", "11111110101010101010101111111", "00000000101000110111100000000", "11010011000100101001001110110", "00011101110110011000101001001", "10111011000001001011010111110", "00111000011101001011010100110", "10100011001000000100101001011", "11100001110110010111100000000", "00101011101100100100111001111", "10110001010101101101111111010", "00010111110110110100100000010", "01111101011010100100101101001", "10000010000010000010001110011", "00101000110110100101001100011", "11110111011010111000111110100", "00000000111111101110100010111", "11111110101011001000101010010", "10000010010101110011100011101", "10111010011010011100111110001", "10111010110111000100111111100", "10111010011101101010010011101", "10000010110111101100111010010", "11111110100110110111110010010"]};
 function qrSvg(rows){const n=rows.length;let s='';rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c==='1')s+=`<rect x="${x}" y="${y}" width="1.02" height="1.02"/>`}));return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" fill="#1c2f8a">${s}</svg>`}
 function mkQR(){const u=$('#lnk').value.trim();if(u===QS.u){$('#qr').innerHTML=qrSvg(QS.m);return}try{buildQR($('#qr'),u)}catch(e){$('#qr').textContent='QR library did not load'}}
-function route(){const h=location.hash,play=h==='#play'||(h!=='#standee'&&matchMedia('(pointer:coarse)').matches&&innerWidth<700);$('#standee').hidden=play;$('#app').hidden=!play;$('#meter').hidden=$('#disc').hidden=!play;if(play)startIntro();else{clr();mkQR()}}
+function route(){const h=location.hash,play=h==='#play'||(h!=='#standee'&&matchMedia('(pointer:coarse)').matches&&innerWidth<700);$('#standee').hidden=play;$('#app').hidden=$('#meter').hidden=$('#disc').hidden=!play;if(play)startApp();else{clr();mkQR()}}
 addEventListener('hashchange',route);route();
 </script></body></html>
