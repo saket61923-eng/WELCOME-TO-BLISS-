@@ -73,31 +73,30 @@ button.cta{border:0;cursor:pointer}
 .gcard input{display:block;width:100%;margin-top:4px;border:0;border-radius:12px;padding:12px;font:500 16px Montserrat;background:#fff;color:var(--g)}
 .gcard .cta{width:100%;text-align:center;margin:8px 0 0}
 /* sheet */
-#app>#sheet{padding:0;background:#f3f6f1;color:#223022;align-items:stretch}
-.stk{position:sticky;top:0;z-index:5;box-shadow:0 3px 8px rgba(0,0,0,.18)}
-.top{background:var(--n);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 120px 10px 14px;display:flex;align-items:center;min-height:84px}
-.top .hi{font:800 16px/1.25 Montserrat;min-width:0;overflow-wrap:anywhere}.top .hi small{display:block;font:500 12px Montserrat;color:var(--m)}
-.colh,.row{display:grid;grid-template-columns:38px 46px 1fr}
-.colh{background:#dfe7dc;border-bottom:2px solid #9fb09b;font:800 11px Montserrat;color:#3b5e3b;letter-spacing:.06em;text-transform:uppercase}
-.colh span{padding:7px 8px;border-right:1px solid #b9c7b6}.colh span:first-child,.colh span:nth-child(2){text-align:center;padding:7px 0}
-.intro{padding:12px 14px;font:600 13px/1.45 Montserrat;color:var(--n);background:#fff;border-bottom:1px solid #d3dcd0}
+#app>#sheet{padding:0;background:linear-gradient(180deg,#e4f1ec 0,#f4f8f5 260px,#f4f8f5);color:#223022;align-items:stretch}
+.stk{position:sticky;top:0;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.top{background:var(--n);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 120px 10px 16px;display:flex;align-items:center;min-height:84px}
+.top .hi{font:800 17px/1.25 Montserrat;min-width:0;overflow-wrap:anywhere}.top .hi small{display:block;font:500 12px Montserrat;color:var(--m);margin-top:2px}
+.intro{margin:14px 14px 0;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid #d6e4dc;font:600 13px/1.45 Montserrat;color:var(--n);box-shadow:0 2px 8px rgba(28,47,138,.06)}
 .intro small{display:block;font:500 10px/1.4 Montserrat;color:#667a64;margin-top:4px}
-.row{position:relative;border-bottom:1px solid #d3dcd0;min-height:46px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.row>span{display:flex;align-items:center}
-.row input{position:absolute;opacity:0;pointer-events:none}
-.gx{justify-content:center;background:#e9eee7;color:#7a8a78;font:600 11px Montserrat;border-right:1px solid #d3dcd0}
-.cb{justify-content:center;border-right:1px solid #d3dcd0}
-.tx{padding:8px 10px;font:500 14px/1.3 Montserrat;color:#223022;overflow-wrap:anywhere}
-.box{width:24px;height:24px;border:2px solid var(--t);border-radius:6px;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s}
-.box:after{content:"";width:12px;height:6px;border:solid #fff;border-width:0 0 3px 3px;transform:rotate(-45deg) scale(0);margin-top:-3px;transition:transform .15s}
-.row.on{background:#dff5ee}.row.on .tx{font-weight:700;color:var(--n)}
-.row.on .box{background:var(--n);border-color:var(--n)}.row.on .box:after{transform:rotate(-45deg) scale(1)}
-.row.hd{background:var(--n);cursor:default;min-height:42px}
-.row.hd .gx{background:#14226b;color:#8c9be0;border-right-color:#14226b}
-.row.hd .tx{grid-column:2/-1;color:var(--m);font:900 13px Montserrat;letter-spacing:.08em;text-transform:uppercase}
-.row.oth{cursor:default}.row.oth .ta{grid-column:2/-1;padding:8px}
-.row.oth textarea{width:100%;border:1px solid #b9c7b6;border-radius:8px;padding:10px;font:500 14px Montserrat;color:var(--g);background:#fff;resize:none}
-.bar{position:sticky;bottom:0;z-index:6;margin-top:42px;background:#fff;border-top:3px solid var(--n);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px));min-height:56px}
+#grid{padding:2px 14px 0}
+.sec{margin-top:20px}
+.sh{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,var(--n),#2a45b0);box-shadow:0 6px 14px rgba(28,47,138,.25);margin-bottom:10px}
+.sh .ic{flex:none;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:21px}
+.sh h3{flex:1;min-width:0;font:900 13px/1.3 Montserrat;letter-spacing:.07em;text-transform:uppercase;color:var(--m)}
+.sh .cc{flex:none;font:800 11px Montserrat;background:var(--r);color:#fff;border-radius:12px;padding:3px 9px;display:none}.sh .cc.on{display:block}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.it{position:relative;display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 12px;border-radius:14px;background:#fff;border:2px solid #dfe8e2;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,transform .1s}
+.it:active{transform:scale(.98)}
+.it input{position:absolute;opacity:0;pointer-events:none}
+.it .box{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #a9c4bc;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s}
+.it .box:after{content:"";width:12px;height:6px;border:solid #fff;border-width:0 0 3px 3px;transform:rotate(-45deg) scale(0);margin-top:-3px;transition:transform .15s}
+.it .tx{font:500 14px/1.3 Montserrat;color:#223022;overflow-wrap:anywhere}
+.it.on{background:#e2f6ef;border-color:var(--n)}.it.on .tx{font-weight:700;color:var(--n)}
+.it.on .box{background:var(--n);border-color:var(--n)}.it.on .box:after{transform:rotate(-45deg) scale(1)}
+.oth{border:2px solid #dfe8e2;border-radius:14px;background:#fff;overflow:hidden}
+.oth textarea{display:block;width:100%;border:0;padding:12px;font:500 14px Montserrat;color:var(--g);background:#fff;resize:none}
+.bar{position:sticky;bottom:0;z-index:6;margin-top:46px;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -6px 18px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 18px calc(6px + env(safe-area-inset-bottom,0px));min-height:58px}
 .bar .cn{font:700 13px/1.3 Montserrat;color:var(--n)}.bar .cn b{font-size:20px}.bar .cn small{display:block;font:500 10px Montserrat;color:#667a64}
 .tickbtn{border:0;background:none;padding:0;width:92px;margin-top:-34px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tickbtn svg{width:100%;display:block}
@@ -186,7 +185,6 @@ button.cta{border:0;cursor:pointer}
  <section id="sheet">
   <div class="stk">
    <div class="top"><div class="hi"><span id="hn"></span><small id="ha"></small></div></div>
-   <div class="colh"><span>#</span><span>✓</span><span>Health issue</span></div>
   </div>
   <div class="intro">Tick everything you relate to, then press the BLISS tick at the bottom.<small>Bliss Pulse Neurotherapy Clinic · Wakad, Pune. This is a fun check, not a medical diagnosis.</small></div>
   <div id="grid"></div>
@@ -248,11 +246,12 @@ function toGate(){clr();land();show('gate')}
 /* ---- checklist ---- */
 const calc=()=>Math.max(0,50-5*picked.size);
 function mascot(){return `<svg viewBox="0 0 160 210"><path d="M68 136L62 184M92 136L98 184M52 84L26 114" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="58" cy="191" rx="13" ry="6" fill="#e8575a"/><ellipse cx="102" cy="191" rx="13" ry="6" fill="#e8575a"/><rect x="48" y="72" width="64" height="68" rx="18" fill="#5f9ea0"/><text x="80" y="111" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="14" fill="#fff" stroke="#1c2f8a" stroke-width=".5">BLISS</text><circle cx="26" cy="114" r="7" fill="#e8efe6"/><g class="wv"><path d="M108 84L136 54" stroke="#1c2f8a" stroke-width="9" stroke-linecap="round"/><circle cx="137" cy="52" r="7" fill="#e8efe6"/></g><circle cx="80" cy="40" r="31" fill="#e8efe6" stroke="#1c2f8a" stroke-width="3"/><ellipse cx="69" cy="34" rx="4" ry="4" fill="#1c2f8a"/><ellipse cx="91" cy="34" rx="4" ry="4" fill="#1c2f8a"/><path d="M63 50Q80 67 97 50" fill="none" stroke="#e8575a" stroke-width="3.5" stroke-linecap="round"/></svg>`}
-function build(){let r=0,h='';FLAT=[];
- for(const s of SHEET){r++;h+=`<div class="row hd"><span class="gx">${r}</span><span class="tx">${esc(s.h)}</span></div>`;
-  for(const t of s.i){r++;h+=`<label class="row"><input type="checkbox" value="${FLAT.length}"><span class="gx">${r}</span><span class="cb"><i class="box"></i></span><span class="tx">${esc(t)}</span></label>`;FLAT.push(t)}}
- r++;h+=`<div class="row hd"><span class="gx">${r}</span><span class="tx">Other issues</span></div>`;
- r++;h+=`<div class="row oth"><span class="gx">${r}</span><span class="ta"><textarea id="oth" rows="3" maxlength="400" placeholder="Anything else? Describe any other issue you face…"></textarea></span></div>`;
+const ICONS=['🦴','🧠','🍽️','❤️','🌬️','👂','💧','🩺','⚖️','🧘','🧴','🦠'];
+function build(){let h='';FLAT=[];
+ SHEET.forEach((s,si)=>{h+=`<div class="sec"><div class="sh"><span class="ic">${ICONS[si]||'✚'}</span><h3>${esc(s.h)}</h3><span class="cc"></span></div><div class="items">`;
+  for(const t of s.i){h+=`<label class="it"><input type="checkbox" value="${FLAT.length}"><i class="box"></i><span class="tx">${esc(t)}</span></label>`;FLAT.push(t)}
+  h+='</div></div>'});
+ h+=`<div class="sec"><div class="sh"><span class="ic">✍️</span><h3>Other issues</h3></div><div class="oth"><textarea id="oth" rows="3" maxlength="400" placeholder="Anything else? Describe any other issue you face…"></textarea></div></div>`;
  $('#grid').innerHTML=h}
 function upd(){const n=picked.size;$('#cnt').innerHTML=`<b>${n}</b> selected<small>Tap the tick when done →</small>`;$('#tk').classList.toggle('pulse',n>0)}
 function startApp(){who={n:'',a:''};picked=new Set();st=0;$('#gn').value=$('#ga').value='';$('#ger').textContent='';$('#cm').value='';$$('#stars button').forEach(b=>b.classList.remove('on'));$('#mas').innerHTML=mascot();build();upd();startIntro()}
@@ -260,7 +259,7 @@ $('#gf').addEventListener('submit',e=>{e.preventDefault();const n=$('#gn').value
  if(n.length<2){$('#ger').textContent='Please enter your name.';$('#gn').focus();return}
  if(!(a>=1&&a<=120)){$('#ger').textContent='Please enter your age (1 to 120).';$('#ga').focus();return}
  who={n,a};$('#hn').textContent=n;$('#ha').textContent=a+' yrs';if(document.activeElement)document.activeElement.blur();show('sheet')});
-$('#grid').addEventListener('change',e=>{const i=e.target;if(i.type!=='checkbox')return;i.closest('.row').classList.toggle('on',i.checked);
+$('#grid').addEventListener('change',e=>{const i=e.target;if(i.type!=='checkbox')return;i.closest('.it').classList.toggle('on',i.checked);const sec=i.closest('.sec'),n=sec.querySelectorAll('input:checked').length,cc=sec.querySelector('.cc');cc.textContent=n+' ticked';cc.classList.toggle('on',n>0);
  i.checked?picked.add(+i.value):picked.delete(+i.value);score=calc();setMeter();upd()});
 /* ---- review (WhatsApp) ---- */
 function rl(){let iss=[...picked].sort((a,b)=>a-b).map(i=>FLAT[i]).join(', ');
