@@ -239,7 +239,8 @@ function copyMsg(){const t=msg(false);const done=()=>{$('#pn').textContent='Copi
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,()=>fb(t,done));else fb(t,done)}
 function fb(t,done){const x=document.createElement('textarea');x.value=t;x.style.cssText='position:fixed;opacity:0';document.body.appendChild(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove();done()}
 $('#snd').addEventListener('click',e=>{e.preventDefault();const u=waUrl();$('#snd').href=u;location.href=u;
- setTimeout(()=>{if(!document.hidden){$('#pn').innerHTML='WhatsApp didn’t open? <button type="button" class="lk2" id="cp">Copy my review</button> and send it to 93073 22041.';$('#cp').onclick=copyMsg}},2600)});
+ setTimeout(()=>{if(!document.hidden){showFb()}},2600)});
+function showFb(){$('#pn').innerHTML='Not opening? <button type="button" class="lk2" id="cp">Copy my review</button>, <a class="lk2" id="bz" href="https://wa.me/message/ZAPXWWICU2LIC1">open our WhatsApp chat</a> or <a class="lk2" id="sm" href="sms:+'+WA+'?body='+encodeURIComponent(msg(true))+'">Send by SMS</a> to 93073 22041.';$('#cp').onclick=copyMsg}
 $$('#stars button').forEach(b=>b.onclick=()=>{st=+b.dataset.n;$$('#stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=st));rl()});
 $('#cm').oninput=rl;
 $('#tk').onclick=()=>{score=picked.size?calc():100;setMeter();rl();show('result')};
