@@ -33,7 +33,7 @@ flowchart LR
 
 ### Phase 2: Private group retrieval
 
-- [ ] Task 2: Persist group issue lists and extend PIN-protected owner lookup.
+- [x] Task 2: Persist group issue lists and extend PIN-protected owner lookup.
   - Acceptance: group registration persists every attendee’s own issues and returns only newly created codes; repeated matches keep their existing code private; an owner lookup returns the selected attendee’s gender, booking contact, and linked attendee summaries.
   - Verify: `node --check clinic/Code.gs`; manually inspect the private Sheet and call `lookup` with a test owner PIN for both a new and a reused attendee.
   - Dependencies: Task 1.

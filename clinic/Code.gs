@@ -192,7 +192,8 @@ function registerGroup(q) {
     if (name.length < 2 || !(age >= 1 && age <= 120) || !gender || !phone ||
         !(Array.isArray(issues) ? issues.length > 0 : typeof issues === 'string' && clean(issues, 4000).length > 0))
       return { ok: false, error: 'Please complete every attendee’s name, age, gender, mobile number and issues.' };
-    normalized.push({ name: name, age: age, gender: gender, phone: phone });
+    normalized.push({ name: name, age: age, gender: gender, phone: phone,
+      issues: Array.isArray(issues) ? clean(issues.join(', '), 4000) : clean(issues, 4000) });
   }
   const cl = rows('Clients');
   const codes = {}; cl.forEach(c => { codes[c.Code] = 1; });
@@ -204,8 +205,8 @@ function registerGroup(q) {
     if (hit) return;
     const code = newCode(codes); codes[code] = 1;
     add('Clients', { Code: code, Name: a.name, Age: a.age, Phone: a.phone, Registered: nowStr(),
-      Gender: a.gender, GroupId: groupId, BookingPhone: contactPhone });
-    cl.push({ Code: code, Name: a.name, Age: a.age, Gender: a.gender, BookingPhone: contactPhone });
+      Issues: a.issues, Gender: a.gender, GroupId: groupId, BookingPhone: contactPhone });
+    cl.push({ Code: code, Name: a.name, Age: a.age, Gender: a.gender, BookingPhone: contactPhone, GroupId: groupId });
     created.push(code);
   });
   return { ok: true, created: created };
@@ -232,13 +233,20 @@ function status(q) {
 function present(c) { return { code: c.Code, name: c.Name, age: c.Age, phone: String(c.Phone), registered: c.Registered, issues: c.Issues, other: c.Other }; }
 function lookup(q) {
   const code = normCode(q.code);
-  const c = rows('Clients').filter(r => r.Code === code)[0];
+  const clients = rows('Clients');
+  const c = clients.filter(r => r.Code === code)[0];
   if (!c) return { ok: false, error: 'No client with that code.' };
   const visits = rows('Visits').filter(v => v.Code === code).sort((a, b) => toMin(a.Date) - toMin(b.Date))
     .map(v => ({ date: v.Date, treatment: v.Treatment, changes: v.Changes, notes: v.Notes }));
   const appts = rows('Appts').filter(a => a.Code === code && a.Status === 'booked').sort((a, b) => toMin(a.Start) - toMin(b.Start))
     .map(a => ({ id: a.ApptId, start: a.Start, end: a.End, note: a.Note }));
-  return { ok: true, client: present(c), visits: visits, appts: appts };
+  const linked = c.GroupId ? clients.filter(r => r.GroupId === c.GroupId)
+    .map(r => ({ name: r.Name, age: r.Age, gender: r.Gender })) : [];
+  const client = present(c);
+  client.gender = c.Gender || '';
+  client.bookingPhone = c.BookingPhone || '';
+  client.linkedAttendees = linked;
+  return { ok: true, client: client, visits: visits, appts: appts };
 }
 function search(q) {
   const s = clean(q.q, 40).toLowerCase(), d = s.replace(/\D/g, '');
