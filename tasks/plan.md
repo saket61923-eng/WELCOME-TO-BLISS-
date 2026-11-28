@@ -26,7 +26,7 @@ flowchart LR
 
 ### Phase 1: Registration foundation
 
-- [ ] Task 1: Extend the private client schema and public registration API.
+- [x] Task 1: Extend the private client schema and public registration API.
   - Acceptance: `setup` preserves existing rows while adding Gender, group-link, and booking-contact headings; individual registration validates and persists Female/Male gender; group registration validates 1–10 complete attendees and creates or reuses each individual client under the existing lock.
   - Verify: `node --check clinic/Code.gs`; manually run `setup` on a test Sheet with existing rows and submit individual plus two-attendee group test payloads.
   - Files: `clinic/Code.gs`

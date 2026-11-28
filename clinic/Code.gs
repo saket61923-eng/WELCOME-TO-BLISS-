@@ -38,7 +38,7 @@ function setConfig(q) {
 }
 
 const SHEETS = {
-  Clients: ['Code', 'Name', 'Age', 'Phone', 'Registered', 'Issues', 'Other'],
+  Clients: ['Code', 'Name', 'Age', 'Phone', 'Registered', 'Issues', 'Other', 'Gender', 'GroupId', 'BookingPhone'],
   Visits: ['Code', 'Date', 'Treatment', 'Changes', 'Notes'],
   Appts: ['ApptId', 'Code', 'Start', 'End', 'Status', 'EventId', 'Note'],
 };
@@ -61,7 +61,7 @@ function out(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 }
 
-const PUBLIC = { register: register, issues: issues, status: status };
+const PUBLIC = { register: register, registerGroup: registerGroup, issues: issues, status: status };
 const OWNER = { lookup: lookup, search: search, addVisit: addVisit, checkSlot: checkSlot,
   schedule: schedule, cancel: cancel, due: due, agenda: agenda, newClient: newClient, getConfig: getConfig, setConfig: setConfig };
 
@@ -102,6 +102,15 @@ function setup() {
   Object.keys(SHEETS).forEach(n => {
     let sh = ss.getSheetByName(n);
     if (!sh) { sh = ss.insertSheet(n); sh.getRange('A:Z').setNumberFormat('@'); sh.appendRow(SHEETS[n]); sh.setFrozenRows(1); } // plain text, so Sheets never turns dates into real dates
+    else if (n === 'Clients') {
+      const headers = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), 1)).getValues()[0];
+      SHEETS.Clients.forEach(k => {
+        if (headers.indexOf(k) < 0) {
+          sh.getRange(1, sh.getLastColumn() + 1).setValue(k);
+          headers.push(k);
+        }
+      });
+    }
   });
   const d = ss.getSheetByName('Sheet1');
   if (d && ss.getSheets().length > 1) ss.deleteSheet(d);
@@ -153,16 +162,53 @@ function weekday(dateStr) { return new Date(dateStr + 'T12:00:00+05:30').getUTCD
 function hm(s) { return +String(s).slice(11, 13) * 60 + +String(s).slice(14, 16); }
 
 /* ---------- PUBLIC actions ---------- */
+function validGender(value) {
+  const gender = clean(value, 20);
+  return gender === 'Female' || gender === 'Male' ? gender : '';
+}
 function register(q) {
-  const name = clean(q.name, 60), age = Math.round(+q.age), ph = phone10(q.phone);
-  if (name.length < 2 || !(age >= 1 && age <= 120) || !ph) return { ok: false, error: 'Please check name, age and mobile number.' };
+  const name = clean(q.name, 60), age = Math.round(+q.age), ph = phone10(q.phone), gender = validGender(q.gender);
+  if (name.length < 2 || !(age >= 1 && age <= 120) || !ph || !gender) return { ok: false, error: 'Please check name, age, gender and mobile number.' };
   const cl = rows('Clients');
   const hit = cl.filter(c => String(c.Phone) === ph)[0];
   if (hit) return { ok: true, existing: true }; // never reveal an existing code on the open web
   const map = {}; cl.forEach(c => { map[c.Code] = 1; });
   const code = newCode(map);
-  add('Clients', { Code: code, Name: name, Age: age, Phone: ph, Registered: nowStr() });
+  add('Clients', { Code: code, Name: name, Age: age, Phone: ph, Registered: nowStr(), Gender: gender });
   return { ok: true, code: code };
+}
+function registerGroup(q) {
+  const contactPhone = phone10(q.contactPhone);
+  const attendees = Array.isArray(q.attendees) ? q.attendees : [];
+  if (!contactPhone || !attendees.length || attendees.length > 10)
+    return { ok: false, error: 'Please check the group details.' };
+  const normalized = [];
+  for (const attendee of attendees) {
+    const name = clean(attendee && attendee.name, 60);
+    const age = Math.round(+(attendee && attendee.age));
+    const gender = validGender(attendee && attendee.gender);
+    const phone = phone10(attendee && (attendee.phone || q.contactPhone));
+    const issues = attendee && attendee.issues;
+    if (name.length < 2 || !(age >= 1 && age <= 120) || !gender || !phone ||
+        !(Array.isArray(issues) ? issues.length > 0 : typeof issues === 'string' && clean(issues, 4000).length > 0))
+      return { ok: false, error: 'Please complete every attendee’s name, age, gender, mobile number and issues.' };
+    normalized.push({ name: name, age: age, gender: gender, phone: phone });
+  }
+  const cl = rows('Clients');
+  const codes = {}; cl.forEach(c => { codes[c.Code] = 1; });
+  const groupId = Utilities.getUuid();
+  const created = [];
+  normalized.forEach(a => {
+    const hit = cl.filter(c => clean(c.Name, 60).toLowerCase() === a.name.toLowerCase() &&
+      +c.Age === a.age && c.Gender === a.gender && phone10(c.BookingPhone) === contactPhone)[0];
+    if (hit) return;
+    const code = newCode(codes); codes[code] = 1;
+    add('Clients', { Code: code, Name: a.name, Age: a.age, Phone: a.phone, Registered: nowStr(),
+      Gender: a.gender, GroupId: groupId, BookingPhone: contactPhone });
+    cl.push({ Code: code, Name: a.name, Age: a.age, Gender: a.gender, BookingPhone: contactPhone });
+    created.push(code);
+  });
+  return { ok: true, created: created };
 }
 function issues(q) {
   const code = normCode(q.code), ph = phone10(q.phone);
