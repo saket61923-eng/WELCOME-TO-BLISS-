@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Bliss Pulse · My appointment</title>
+<style>
+:root{--bg:#0f1733;--card:#18224a;--line:#2b3a78;--tx:#eef2ff;--mu:#9fb0e8;--ac:#a8e6d6}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(120% 80% at 50% 0,#22337f 0,var(--bg) 60%);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:grid;place-items:start center;padding:8vh 16px 40px}
+.c{width:100%;max-width:380px;text-align:center}
+h1{font-size:20px;margin:6px 0 2px}.sub{color:var(--mu);font-size:13px;margin:0 0 22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:#0f1733;color:var(--tx);font:600 18px ui-monospace,Menlo,monospace;text-align:center;letter-spacing:.08em;text-transform:uppercase}
+button,a.b{display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:var(--ac);color:#0b2b25;font:700 15px inherit;cursor:pointer;text-decoration:none}
+a.g{background:transparent;color:var(--ac);border:1px solid #5f9ea0}
+.big{font-size:22px;font-weight:800;margin:6px 0;color:var(--ac)}.er{color:#ff8a8c;font-size:14px;margin-top:10px;min-height:20px}
+.hide{display:none}.mu{color:var(--mu);font-size:14px}
+</style></head><body><div class="c">
+<h1>Bliss Pulse</h1><p class="sub">Neurotherapy Clinic · Wakad, Pune</p>
+<div class="card" id="ask"><div class="mu" style="margin-bottom:10px">Enter your Bliss code</div>
+<input id="code" placeholder="BP-XXXXX" maxlength="9" autocomplete="off" autocapitalize="characters">
+<div class="er" id="er"></div><button id="go">Show my appointment</button></div>
+<div class="card hide" id="res"><div class="mu" id="hi"></div><div id="body"></div>
+<button class="g" style="background:transparent;color:var(--ac);border:1px solid #5f9ea0" id="again">Use a different code</button></div>
+</div>
+<script>
+/* Paste the same Web app URL as in owner.html */
+const API='PASTE_WEB_APP_URL_HERE';
+const CLINIC='Bliss Pulse Neurotherapy Clinic, Wakad, Pune',PHONE='9307322041';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function nice(s){const d=new Date(s.slice(0,10)+'T12:00:00');let h=+s.slice(11,13);const m=s.slice(14,16),ap=h>=12?'pm':'am';h=h%12||12;return{day:DAY[d.getDay()]+', '+(+s.slice(8,10))+' '+MON[+s.slice(5,7)-1],time:h+':'+m+' '+ap}}
+function utc(s){return new Date(Date.parse(s.replace(' ','T')+':00+05:30')).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'')}
+function ics(n){
+  const t=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Bliss Pulse//EN','BEGIN:VEVENT','UID:'+utc(n.start)+'@blisspulse','DTSTAMP:'+utc(n.start),
+  'DTSTART:'+utc(n.start),'DTEND:'+utc(n.end),'SUMMARY:Bliss Pulse appointment','LOCATION:'+CLINIC,
+  'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:Bliss Pulse appointment tomorrow','END:VALARM',
+  'BEGIN:VALARM','TRIGGER:-PT60M','ACTION:DISPLAY','DESCRIPTION:Bliss Pulse appointment in 1 hour','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(t)}
+async function go(){
+  const code=$('#code').value.trim();if(code.length<5)return;$('#er').textContent='';$('#go').disabled=true;
+  if(API.indexOf('http')!==0){$('#er').textContent='Not set up yet.';$('#go').disabled=false;return}
+  let r;try{r=await (await fetch(API,{method:'POST',body:JSON.stringify({action:'status',code})})).json()}catch(e){r={ok:false,error:'No internet connection. Please try again.'}}
+  $('#go').disabled=false;if(!r.ok){$('#er').textContent=r.error;return}
+  $('#ask').classList.add('hide');$('#res').classList.remove('hide');$('#hi').textContent='Hello, '+r.name+' 🌿';
+  if(r.next){const n=nice(r.next.start);
+    $('#body').innerHTML='<div class="mu" style="margin-top:10px">Your next session</div><div class="big">'+esc(n.day)+'</div><div class="big" style="margin-top:0">'+esc(n.time)+'</div>'
+    +'<div class="mu" style="margin:6px 0 4px">We will remind you a day before and an hour before.</div>'
+    +'<a class="b" href="'+ics(r.next)+'" download="bliss-pulse-appointment.ics">Add to my phone calendar</a>';
+  }else $('#body').innerHTML='<div style="margin:14px 0">No appointment is booked yet.</div><a class="b" href="tel:+91'+PHONE+'">Call the clinic</a>';
+}
+$('#go').onclick=go;$('#code').onkeydown=e=>{if(e.key==='Enter')go()};
+$('#again').onclick=()=>{$('#res').classList.add('hide');$('#ask').classList.remove('hide');$('#code').value=''};
+const q=new URLSearchParams(location.search).get('c');if(q){$('#code').value=q;go()}
+</script></body></html>

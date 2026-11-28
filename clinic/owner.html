@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Bliss Pulse · Clinic desk</title>
+<style>
+:root{--bg:#0f1733;--card:#18224a;--line:#2b3a78;--tx:#eef2ff;--mu:#9fb0e8;--ac:#a8e6d6;--ac2:#5f9ea0;--b:#2a45b0;--bad:#ff8a8c;--ok:#7be0a6}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:0 0 40px}
+.w{max-width:760px;margin:0 auto;padding:0 16px}
+h1{font-size:18px;margin:0}h2{font-size:15px;margin:0 0 10px;color:var(--ac)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 0}
+header .w{display:flex;align-items:center;gap:10px;justify-content:space-between}
+nav{display:flex;gap:6px;margin:14px 0}
+nav button{flex:1;padding:10px 6px;border:1px solid var(--line);background:transparent;color:var(--mu);border-radius:10px;font:600 13px inherit;cursor:pointer}
+nav button.on{background:var(--b);color:#fff;border-color:var(--b)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 4px;font-weight:600}
+input,textarea,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:#0f1733;color:var(--tx);font:inherit}
+textarea{min-height:76px;resize:vertical}
+button.p,a.p{display:inline-block;background:var(--ac);color:#0b2b25;border:0;border-radius:10px;padding:11px 16px;font:700 14px inherit;cursor:pointer;text-decoration:none;text-align:center}
+button.s{background:transparent;color:var(--ac);border:1px solid var(--ac2);border-radius:10px;padding:9px 12px;font:600 13px inherit;cursor:pointer}
+button.p[disabled]{opacity:.5}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.mu{color:var(--mu);font-size:13px}.code{font:700 22px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--ac)}
+.msg{margin:8px 0;font-size:13px}.bad{color:var(--bad)}.ok{color:var(--ok)}
+.it{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.it:first-child{border-top:0}.it b{display:block}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#33408a;color:#fff;margin-left:6px}
+.tag.hot{background:#c0392b}
+.vis{border-left:3px solid var(--ac2);padding:2px 0 2px 12px;margin:0 0 14px}
+.sug{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.hide{display:none}
+#login{max-width:340px;margin:18vh auto 0;text-align:center}
+</style></head><body>
+
+<div id="login" class="w card">
+  <h1>Bliss Pulse · Clinic desk</h1>
+  <p class="mu">Private. Enter your PIN.</p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+  <div class="msg bad" id="lerr"></div>
+  <button class="p" id="lgo" style="width:100%;margin-top:6px">Unlock</button>
+</div>
+
+<div id="app" class="hide">
+<header><div class="w"><h1>Bliss Pulse · Clinic desk</h1><button class="s" id="lock">Lock</button></div></header>
+<div class="w">
+<nav id="tabs"><button data-t="rem" class="on">Reminders</button><button data-t="find">Client</button><button data-t="new">New client</button><button data-t="set">Settings</button></nav>
+
+<section id="t-rem">
+  <div class="card"><h2>Coming up (next 2 days)</h2><div id="dueList" class="mu">Loading…</div></div>
+  <div class="card"><h2>Today's schedule</h2><div id="agList" class="mu">Loading…</div></div>
+</section>
+
+<section id="t-find" class="hide">
+  <div class="card"><label style="margin-top:0">Client code, name or mobile</label>
+    <div class="row"><input id="q" placeholder="e.g. BP-7K4M2" autocapitalize="characters"><button class="p" id="qgo" style="flex:0 0 90px">Open</button></div>
+    <div id="qres"></div></div>
+  <div id="rec" class="hide">
+    <div class="card"><div class="code" id="rCode"></div><b id="rName"></b> <span class="mu" id="rMeta"></span>
+      <div class="mu" style="margin-top:8px">First registered: <span id="rReg"></span></div>
+      <label>Problems ticked by the client</label><div id="rIss" class="mu"></div>
+      <div id="rOth" class="mu"></div></div>
+    <div class="card"><h2>Add today's visit</h2>
+      <label style="margin-top:0">Treatment given</label><textarea id="vT"></textarea>
+      <label>Changes noticed since last time</label><textarea id="vC"></textarea>
+      <label>Notes</label><textarea id="vN"></textarea>
+      <button class="p" id="vSave" style="margin-top:12px">Save visit</button><div class="msg" id="vMsg"></div></div>
+    <div class="card"><h2>Next appointment</h2>
+      <div class="row"><div><label style="margin-top:0">Date</label><input type="date" id="sD"></div>
+      <div><label style="margin-top:0">Time</label><input type="time" id="sT" step="900" value="16:00"></div></div>
+      <div class="msg" id="sMsg"></div><div class="sug" id="sSug"></div>
+      <button class="p" id="sBook" style="margin-top:10px" disabled>Book appointment</button> <button class="s hide" id="sForce" style="margin-top:10px">Book anyway (outside hours)</button>
+      <div id="rAppts" style="margin-top:12px"></div></div>
+    <div class="card"><h2>History</h2><div id="rVis" class="mu"></div></div>
+  </div>
+</section>
+
+<section id="t-new" class="hide"><div class="card"><h2>Register a client here</h2>
+  <label style="margin-top:0">Name</label><input id="nN" autocomplete="off">
+  <div class="row"><div><label>Age</label><input id="nA" type="number" inputmode="numeric"></div>
+  <div><label>Mobile (10 digits)</label><input id="nP" type="tel" inputmode="numeric" maxlength="14"></div></div>
+  <button class="p" id="nGo" style="margin-top:12px">Create code</button><div class="msg" id="nMsg"></div></div></section>
+<section id="t-set" class="hide"><div class="card"><h2>Clinic hours and sessions</h2>
+  <div class="row"><div><label style="margin-top:0">Opens</label><input type="time" id="cO"></div><div><label style="margin-top:0">Closes</label><input type="time" id="cC"></div></div>
+  <div class="row"><div><label>Session (minutes)</label><input type="number" id="cD" inputmode="numeric"></div><div><label>Gap between sessions (min)</label><input type="number" id="cB" inputmode="numeric"></div></div>
+  <label>Working days</label><div id="cDays" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  <button class="p" id="cSave" style="margin-top:14px">Save settings</button><div class="msg" id="cMsg"></div>
+  <p class="mu">For a one-off change, you can also use "Book anyway" when booking.</p></div></section>
+</div></div>
+
+<script>
+/* 1) Paste your Web app URL between the quotes after you deploy the script (see SETUP.md) */
+const API='PASTE_WEB_APP_URL_HERE';
+/* 2) Where your clients' status page lives (the file status.html next to this one) */
+const STATUS_URL=location.href.replace(/owner\.html.*$/,'status.html');
+const CLINIC='Bliss Pulse Neurotherapy Clinic';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let PIN='',cur=null,pick='';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function call(a,o){
+  if(API.indexOf('http')!==0)return{ok:false,error:'The Web app URL is not pasted into owner.html yet.'};
+  try{const r=await fetch(API,{method:'POST',body:JSON.stringify(Object.assign({action:a,pin:PIN},o||{}))});return await r.json()}
+  catch(e){return{ok:false,error:'Could not reach the server. Check your internet.'}}
+}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function when(s){const d=new Date(s.slice(0,10)+'T12:00:00');let h=+s.slice(11,13),m=s.slice(14,16);const ap=h>=12?'pm':'am';h=h%12||12;return DAY[d.getDay()]+', '+(+s.slice(8,10))+' '+MON[+s.slice(5,7)-1]+', '+h+':'+m+' '+ap}
+function wa(phone,text){return 'https://wa.me/91'+phone+'?text='+encodeURIComponent(text)}
+function remText(x){
+  const first=String(x.name).split(' ')[0];
+  return 'Hello '+first+', a gentle reminder from '+CLINIC+': your session is '+(x.soon&&x.today?'in about an hour':(x.tomorrow?'tomorrow':'on'))+' — '+when(x.start)+'. Your code: '+x.code+'. Please reply if you need to reschedule. 🌿'}
+function codeText(name,code){return 'Hello '+String(name).split(' ')[0]+', welcome to '+CLINIC+'. Your personal code is '+code+'. Check your next appointment any time: '+STATUS_URL+'?c='+code}
+
+/* ---- login ---- */
+async function unlock(){
+  PIN=$('#pin').value.trim();if(!PIN)return;$('#lgo').disabled=true;$('#lerr').textContent='';
+  const r=await call('due');$('#lgo').disabled=false;
+  if(!r.ok){$('#lerr').textContent=r.error;PIN='';return}
+  $('#login').classList.add('hide');$('#app').classList.remove('hide');$('#pin').value='';showDue(r);loadAgenda();
+}
+$('#lgo').onclick=unlock;$('#pin').onkeydown=e=>{if(e.key==='Enter')unlock()};
+$('#lock').onclick=()=>{PIN='';cur=null;$('#app').classList.add('hide');$('#login').classList.remove('hide')};
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['rem','find','new','set'].forEach(t=>$('#t-'+t).classList.toggle('hide',t!==b.dataset.t));if(b.dataset.t==='rem')refresh();if(b.dataset.t==='set')loadCfg()});
+
+/* ---- reminders ---- */
+async function refresh(){showDue(await call('due'));loadAgenda()}
+function showDue(r){
+  const el=$('#dueList');if(!r.ok){el.textContent=r.error;return}
+  if(!r.list.length){el.textContent='Nothing booked in the next 2 days.';return}
+  el.innerHTML=r.list.map(x=>{
+    const tag=x.soon&&x.today?'<span class="tag hot">in '+Math.max(0,x.minsLeft)+' min</span>':(x.tomorrow?'<span class="tag">tomorrow</span>':'<span class="tag">today</span>');
+    return '<div class="it"><div><b>'+esc(x.name)+tag+'</b><span class="mu">'+esc(when(x.start))+' · '+esc(x.code)+'</span></div><a class="p" target="_blank" rel="noopener" href="'+wa(x.phone,remText(x))+'">WhatsApp</a></div>'}).join('');
+}
+async function loadAgenda(){
+  const r=await call('agenda'),el=$('#agList');if(!r.ok){el.textContent=r.error;return}
+  el.innerHTML=r.list.length?r.list.map(x=>'<div class="it"><div><b>'+esc(x.start.slice(11))+' · '+esc(x.name)+'</b><span class="mu">'+esc(x.code)+'</span></div><button class="s" data-open="'+esc(x.code)+'">Open</button></div>').join(''):'No appointments today.';
+  $$('[data-open]').forEach(b=>b.onclick=()=>openClient(b.dataset.open));
+}
+
+/* ---- find client ---- */
+async function find(){
+  const v=$('#q').value.trim();if(!v)return;$('#qres').innerHTML='';
+  if(/^bp-?[a-z0-9]{5}$/i.test(v))return openClient(v);
+  const r=await call('search',{q:v});
+  if(!r.ok){$('#qres').innerHTML='<div class="msg bad">'+esc(r.error)+'</div>';return}
+  $('#qres').innerHTML=r.list.length?r.list.map(c=>'<div class="it"><div><b>'+esc(c.name)+'</b><span class="mu">'+esc(c.code)+' · '+esc(c.phone)+'</span></div><button class="s" data-open="'+esc(c.code)+'">Open</button></div>').join(''):'<div class="msg mu">No match.</div>';
+  $$('#qres [data-open]').forEach(b=>b.onclick=()=>openClient(b.dataset.open));
+}
+$('#qgo').onclick=find;$('#q').onkeydown=e=>{if(e.key==='Enter')find()};
+async function openClient(code){
+  $$('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t==='find'));
+  ['rem','find','new','set'].forEach(t=>$('#t-'+t).classList.toggle('hide',t!=='find'));
+  const r=await call('lookup',{code});
+  if(!r.ok){$('#qres').innerHTML='<div class="msg bad">'+esc(r.error)+'</div>';return}
+  cur=r;$('#q').value=r.client.code;$('#qres').innerHTML='';$('#rec').classList.remove('hide');
+  const c=r.client;$('#rCode').textContent=c.code;$('#rName').textContent=c.name;
+  $('#rMeta').textContent=c.age+' yrs · '+c.phone;$('#rReg').textContent=c.registered?when(c.registered):'-';
+  $('#rIss').textContent=c.issues||'(none recorded)';$('#rOth').textContent=c.other?'Other: '+c.other:'';
+  $('#rVis').innerHTML=r.visits.length?r.visits.slice().reverse().map(v=>'<div class="vis"><b style="color:#fff">'+esc(when(v.date))+'</b><br>'+(v.treatment?'<b>Treatment:</b> '+esc(v.treatment)+'<br>':'')+(v.changes?'<b>Changes:</b> '+esc(v.changes)+'<br>':'')+(v.notes?'<b>Notes:</b> '+esc(v.notes):'')+'</div>').join(''):'No visits recorded yet.';
+  showAppts();$('#vT').value=$('#vC').value=$('#vN').value='';$('#vMsg').textContent='';
+  const d=new Date();d.setDate(d.getDate()+1);$('#sD').value=d.toISOString().slice(0,10);pick='';checkSlot();
+  $('#rec').scrollIntoView({behavior:'smooth'});
+}
+function showAppts(){
+  const a=cur.appts;$('#rAppts').innerHTML=a.length?'<label>Booked</label>'+a.map(x=>'<div class="it"><div><b>'+esc(when(x.start))+'</b></div><div style="display:flex;gap:6px"><a class="s" style="text-decoration:none" target="_blank" rel="noopener" href="'+wa(cur.client.phone,remText({name:cur.client.name,code:cur.client.code,start:x.start}))+'">WhatsApp</a><button class="s" data-cx="'+esc(x.id)+'">Cancel</button></div></div>').join(''):'';
+  $$('[data-cx]').forEach(b=>b.onclick=async()=>{if(!confirm('Cancel this appointment?'))return;const r=await call('cancel',{id:b.dataset.cx});if(r.ok)openClient(cur.client.code)});
+}
+$('#vSave').onclick=async()=>{
+  if(!cur)return;if(!$('#vT').value.trim()&&!$('#vC').value.trim()&&!$('#vN').value.trim()){$('#vMsg').className='msg bad';$('#vMsg').textContent='Write something first.';return}
+  $('#vSave').disabled=true;const r=await call('addVisit',{code:cur.client.code,treatment:$('#vT').value,changes:$('#vC').value,notes:$('#vN').value});$('#vSave').disabled=false;
+  if(r.ok)openClient(cur.client.code);else{$('#vMsg').className='msg bad';$('#vMsg').textContent=r.error}
+};
+/* ---- settings ---- */
+const hmv=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),vhm=v=>+v.slice(0,2)*60+ +v.slice(3,5);
+const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+async function loadCfg(){
+  const r=await call('getConfig');if(!r.ok){$('#cMsg').className='msg bad';$('#cMsg').textContent=r.error;return}
+  const c=r.cfg;$('#cO').value=hmv(c.open);$('#cC').value=hmv(c.close);$('#cD').value=c.duration;$('#cB').value=c.buffer;
+  $('#cDays').innerHTML=[1,2,3,4,5,6,0].map(d=>'<label style="margin:0;display:flex;gap:4px;align-items:center;font-size:13px"><input type="checkbox" style="width:auto" value="'+d+'"'+(c.days.indexOf(d)>-1?' checked':'')+'>'+DN[d]+'</label>').join('');
+}
+$('#cSave').onclick=async()=>{
+  const days=[...document.querySelectorAll('#cDays input:checked')].map(x=>+x.value);
+  const r=await call('setConfig',{open:vhm($('#cO').value),close:vhm($('#cC').value),duration:$('#cD').value,buffer:$('#cB').value,days});
+  $('#cMsg').className='msg '+(r.ok?'ok':'bad');$('#cMsg').textContent=r.ok?'Saved.':r.error;
+};
+async function checkSlot(){
+  $('#sBook').disabled=true;$('#sForce').classList.add('hide');pick='';$('#sSug').innerHTML='';const d=$('#sD').value;if(!d){return}
+  const start=d+' '+$('#sT').value;$('#sMsg').className='msg mu';$('#sMsg').textContent='Checking…';
+  const r=await call('checkSlot',{start});if(start!==$('#sD').value+' '+$('#sT').value)return;
+  if(!r.ok){$('#sMsg').className='msg bad';$('#sMsg').textContent=r.error;return}
+  if(r.free){pick=start;$('#sMsg').className='msg ok';$('#sMsg').textContent='✓ Free: '+when(start);$('#sBook').disabled=false}
+  else{if(r.why==='hours'||r.why==='closed')$('#sForce').classList.remove('hide');$('#sMsg').className='msg bad';$('#sMsg').textContent=r.problem+' Nearest free times:';
+    $('#sSug').innerHTML=r.suggestions.map(s=>'<button class="s" data-s="'+esc(s)+'">'+esc(when(s))+'</button>').join('');
+    $$('#sSug [data-s]').forEach(b=>b.onclick=()=>{$('#sD').value=b.dataset.s.slice(0,10);$('#sT').value=b.dataset.s.slice(11);checkSlot()})}
+}
+$('#sD').onchange=$('#sT').onchange=checkSlot;
+async function book(force){
+  const start=force?$('#sD').value+' '+$('#sT').value:pick;
+  if(!start||!cur)return;$('#sBook').disabled=true;
+  const r=await call('schedule',{code:cur.client.code,start,force:!!force});
+  if(r.ok){alert('Booked: '+when(r.start)+(r.calendar?'\nAdded to your Google Calendar with alerts 1 day and 60 min before.':'\n(Calendar alert could not be added.)'));openClient(cur.client.code)}
+  else{$('#sMsg').className='msg bad';$('#sMsg').textContent=r.error||r.problem;checkSlot()}
+}
+$('#sBook').onclick=()=>book(false);
+$('#sForce').onclick=()=>{if(confirm('Book outside your usual hours?'))book(true)};
+
+/* ---- new client ---- */
+$('#nGo').onclick=async()=>{
+  const m=$('#nMsg');m.className='msg';m.textContent='';
+  $('#nGo').disabled=true;const r=await call('newClient',{name:$('#nN').value,age:$('#nA').value,phone:$('#nP').value});$('#nGo').disabled=false;
+  if(!r.ok){m.className='msg bad';m.textContent=r.error;return}
+  if(r.existing){m.className='msg bad';m.textContent='This mobile number is already registered. Search it under Client.';return}
+  const n=$('#nN').value,p=$('#nP').value.replace(/\D/g,'').slice(-10);
+  m.className='msg';m.innerHTML='<div class="code">'+esc(r.code)+'</div><div style="margin:8px 0" class="mu">Created. Send it to the client:</div><a class="p" target="_blank" rel="noopener" href="'+wa(p,codeText(n,r.code))+'">Send code on WhatsApp</a> <button class="s" id="nOpen">Open record</button>';
+  $('#nOpen').onclick=()=>openClient(r.code);$('#nN').value=$('#nA').value=$('#nP').value='';
+};
+</script></body></html>
